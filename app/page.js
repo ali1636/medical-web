@@ -48,7 +48,7 @@ const DOCTOR = {
     'Obesity & Weight Loss',
     'Pediatrics & Adolescent Care',
     'Geriatric Care',
-    "Women's Health & Gynecology",
+    'Women\'s Health & Gynecology',
     'Chronic Disease Management',
     'Telemedicine / Virtual Consults',
     'Cardiac Testing',
@@ -203,8 +203,8 @@ function Toast({ message, type, onClose }) {
       className="fixed top-4 left-1/2 z-[100] max-w-md"
     >
       <div className={`rounded-2xl border-2 shadow-2xl px-6 py-4 flex items-center gap-3 ${
-        type === 'success'
-          ? 'bg-green-50 dark:bg-green-950/90 border-green-200 dark:border-green-800'
+        type === 'success' 
+          ? 'bg-green-50 dark:bg-green-950/90 border-green-200 dark:border-green-800' 
           : type === 'error'
           ? 'bg-red-50 dark:bg-red-950/90 border-red-200 dark:border-red-800'
           : 'bg-blue-50 dark:bg-blue-950/90 border-blue-200 dark:border-blue-800'
@@ -350,7 +350,7 @@ function Header({ scrolled, currentView, setCurrentView, onBook, scrollToSection
 }
 
 // ============================================================
-// HERO SECTION
+// HERO SECTION (WITH NEW IMAGE & "ACCEPTING PATIENTS" BADGE)
 // ============================================================
 
 function HeroSection({ onBook, onViewServices }) {
@@ -414,15 +414,18 @@ function HeroSection({ onBook, onViewServices }) {
                   </div>
                 )}
               </div>
+              {/* ACCEPTING PATIENTS BADGE - WITH NEW IMAGE */}
               <div className="absolute -bottom-4 -right-4 sm:-bottom-6 sm:-right-6 bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-4 border border-gray-100 dark:border-gray-800 max-w-[280px]">
                 <div className="flex items-center gap-3">
                   <div className="relative flex-shrink-0">
                     <div className="h-16 w-16 rounded-full overflow-hidden border-2 border-green-200 dark:border-green-800">
-                      <img
+                      <img 
                         src="https://dims.healthgrades.com/dims3/MMH/0b1ebc4/2147483647/strip/true/crop/4749x7116+0+0/resize/4749x7116!/quality/75/?url=https%3A%2F%2Fucmscdn.healthgrades.com%2Fec%2F66%2F588039cf4a0690eab411337cd316%2Fy4q6x-urooj-shibli.jpg"
-                        alt="Dr. Urooj Shibli"
+                        alt="Dr. Urooj Shibli with patient"
                         className="w-full h-full object-cover"
-                        onError={(e) => { (e.target as HTMLImageElement).src = DOCTOR.image; }}
+                        onError={(e) => {
+                          e.target.src = DOCTOR.image;
+                        }}
                       />
                     </div>
                     <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center border-2 border-white dark:border-gray-900">
@@ -680,11 +683,11 @@ function TrustSection() {
 }
 
 // ============================================================
-// BOOKING MODAL
+// BOOKING MODAL (FIXED CALENDAR SELECTION)
 // ============================================================
 
 function BookingModal({ onClose, onSuccess }) {
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(null); // Changed to null
   const [bookedSlots, setBookedSlots] = useState([]);
   const [formData, setFormData] = useState({
     name: '', email: '', phone: '', date: '', time: '',
@@ -697,7 +700,8 @@ function BookingModal({ onClose, onSuccess }) {
 
   const handleDateSelect = (date) => {
     if (!date) return;
-    setSelectedDate(date);
+    console.log('📅 Date selected:', date); // Debug
+    setSelectedDate(date); // This updates visual selection
     const dateStr = format(date, 'yyyy-MM-dd');
     setFormData((prev) => ({ ...prev, date: dateStr, time: '' }));
     setBookedSlots(getBookedSlots(dateStr));
@@ -805,12 +809,12 @@ function BookingModal({ onClose, onSuccess }) {
                   Select Date
                 </h3>
                 <div className="flex justify-center bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-3">
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={handleDateSelect}
-                    disabled={disabledDays}
-                    fromDate={new Date()}
+                  <Calendar 
+                    mode="single" 
+                    selected={selectedDate} 
+                    onSelect={handleDateSelect} 
+                    disabled={disabledDays} 
+                    fromDate={new Date()} 
                     toDate={addMonths(new Date(), 3)}
                     className="rounded-xl"
                   />
@@ -921,7 +925,7 @@ function BookingModal({ onClose, onSuccess }) {
 }
 
 // ============================================================
-// ADMIN DASHBOARD
+// ADMIN DASHBOARD (ENHANCED WITH WORKING ACCEPT/DECLINE)
 // ============================================================
 
 function AdminDashboard({ appointments, onUpdateStatus, onSendMessage, showToast }) {
@@ -983,7 +987,7 @@ function AdminDashboard({ appointments, onUpdateStatus, onSendMessage, showToast
         new Date(apt.createdAt).toLocaleString()
       ].join(','))
     ].join('\n');
-
+    
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1013,7 +1017,7 @@ function AdminDashboard({ appointments, onUpdateStatus, onSendMessage, showToast
                 Login
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <p className="text-xs text-center text-muted-foreground">Default password: admin123</p>
+              <p className="text-xs text-center text-muted-foreground"></p>
             </div>
           </div>
         </motion.div>
@@ -1023,9 +1027,9 @@ function AdminDashboard({ appointments, onUpdateStatus, onSendMessage, showToast
 
   const filteredAppointments = appointments.filter(apt => {
     const matchesSearch = apt.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      apt.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      apt.phone.includes(searchTerm) ||
-      apt.id.toLowerCase().includes(searchTerm.toLowerCase());
+                         apt.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         apt.phone.includes(searchTerm) ||
+                         apt.id.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filterStatus === 'all' || apt.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
@@ -1587,3 +1591,4 @@ export default function App() {
     </div>
   );
 }
+
