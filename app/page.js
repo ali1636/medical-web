@@ -11,7 +11,7 @@ import {
   Sun, Moon, Menu, User, Trash2, Heart, Activity, Calendar as CalendarIcon,
   GraduationCap, BadgeCheck, CalendarDays, ArrowRight,
   Settings, Lock, CheckCircle, XCircle, MessageSquare, Send,
-  Search, Download, Filter, Bell, TrendingUp
+  Search, Download, Filter, Bell, TrendingUp, Globe, Languages
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,10 +25,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 // ============================================================
 
 const DOCTOR = {
-  name: 'Dr',
+  name: 'Dr. Urooj Shibli',
   credentials: 'MD, ABFM',
   specialty: 'Family Medicine & Obesity Specialist',
-  practice: ' Family Medicine & Obesity Clinic',
+  practice: 'Shibli Family Medicine & Obesity Clinic',
   location: 'Mesquite, TX (Dallas Area)',
   address: '802 US Highway 80 E, Mesquite, TX 75149',
   phone: '(469) 827-7300',
@@ -36,12 +36,25 @@ const DOCTOR = {
   hours: 'Monday - Friday: 9:00 AM - 5:00 PM',
   closedDays: 'Saturday & Sunday: Closed',
   experience: '15+',
-  image: 'https://www.findatopdoc.com/doctor_images/1/12/1003509.jpg?v=cbda',
-  bio: 'A board-certified family physician, Dr. has been proudly attending to her patients\' health for more than 15 years. She established her own private practice serving the community of Mesquite, Texas with exceptional care in a compassionate and friendly atmosphere.',
-  education: 'Ziauddin Medical University, 2004',
-  residency: 'Allegheny Health Network Western Pennsylvania Hospital, 2009',
-  boardCert: 'American Board of Family Medicine (ABFM)',
-  awards: ['On-Time Doctor Award (2018)', 'Gold Medalist - Medical School', 'Committed to Patient Care (3x)', 'Best Geriatric Resident Award'],
+  image: 'https://dims.healthgrades.com/dims3/MMH/0b1ebc4/2147483647/strip/true/crop/4749x7116+0+0/resize/4749x7116!/quality/75/?url=https%3A%2F%2Fucmscdn.healthgrades.com%2Fec%2F66%2F588039cf4a0690eab411337cd316%2Fy4q6x-urooj-shibli.jpg',
+  bio: 'Dr. Urooj Shibli, MD is a board certified family medicine and obesity medicine specialist located in Texas. She has over 15 years of experience and has established a solid reputation for her pleasant disposition, ability to build a warm rapport with her patients, being a good listener and for providing clear, easy to follow diagnosis and treatment plans.',
+  education: 'Ziauddin Medical University, 2004 (Gold Medal)',
+  residency: 'Family Medicine Residency — Forbes / Allegheny Health Network, 2009',
+  boardCert: 'American Board of Family Medicine (ABFM) & American Board of Obesity Medicine',
+  awards: ['Gold Medal - Top Graduate', 'Best Geriatric Resident Award', 'Committed to Patient Care (3x)', 'On-Time Doctor Award (2018)'],
+  languages: ['English', 'Urdu', 'Punjabi', 'Basic Spanish', 'Basic Hindi'],
+  specialties: [
+    'Family & Primary Care',
+    'Obesity & Weight Loss',
+    'Pediatrics & Adolescent Care',
+    'Geriatric Care',
+    "Women's Health & Gynecology",
+    'Chronic Disease Management',
+    'Telemedicine / Virtual Consults',
+    'Cardiac Testing',
+    'Preventive Screenings',
+    'Wellness Counseling'
+  ]
 };
 
 const SERVICES = [
@@ -190,8 +203,8 @@ function Toast({ message, type, onClose }) {
       className="fixed top-4 left-1/2 z-[100] max-w-md"
     >
       <div className={`rounded-2xl border-2 shadow-2xl px-6 py-4 flex items-center gap-3 ${
-        type === 'success' 
-          ? 'bg-green-50 dark:bg-green-950/90 border-green-200 dark:border-green-800' 
+        type === 'success'
+          ? 'bg-green-50 dark:bg-green-950/90 border-green-200 dark:border-green-800'
           : type === 'error'
           ? 'bg-red-50 dark:bg-red-950/90 border-red-200 dark:border-red-800'
           : 'bg-blue-50 dark:bg-blue-950/90 border-blue-200 dark:border-blue-800'
@@ -233,7 +246,7 @@ function ServiceIcon({ type, className }) {
 }
 
 // ============================================================
-// HEADER COMPONENT (WITH THEME TOGGLE RESTORED)
+// HEADER COMPONENT
 // ============================================================
 
 function Header({ scrolled, currentView, setCurrentView, onBook, scrollToSection, appointmentCount }) {
@@ -337,7 +350,7 @@ function Header({ scrolled, currentView, setCurrentView, onBook, scrollToSection
 }
 
 // ============================================================
-// HERO, SERVICES, ABOUT, TRUST SECTIONS
+// HERO SECTION
 // ============================================================
 
 function HeroSection({ onBook, onViewServices }) {
@@ -369,7 +382,20 @@ function HeroSection({ onBook, onViewServices }) {
                 View Services
               </Button>
             </div>
+            <div className="flex flex-wrap gap-6 justify-center lg:justify-start">
+              {[
+                { icon: Award, label: `${DOCTOR.experience} Years Experience` },
+                { icon: BadgeCheck, label: 'ABFM Certified' },
+                { icon: Heart, label: 'Patient-Centered' },
+              ].map((badge, i) => (
+                <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 + i * 0.1 }} className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <badge.icon className="h-4 w-4 text-primary/70" />
+                  <span>{badge.label}</span>
+                </motion.div>
+              ))}
+            </div>
           </motion.div>
+
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.2 }} className="relative flex justify-center lg:justify-end">
             <div className="relative">
               <div className="absolute -inset-4 sm:-inset-6 bg-gradient-to-br from-blue-100/60 to-indigo-100/40 dark:from-blue-900/20 dark:to-indigo-900/10 rounded-[2rem] sm:rounded-[2.5rem] rotate-2" />
@@ -388,10 +414,20 @@ function HeroSection({ onBook, onViewServices }) {
                   </div>
                 )}
               </div>
-              <div className="absolute -bottom-4 -left-4 sm:-bottom-6 sm:-left-6 bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-4 border border-gray-100 dark:border-gray-800">
+              <div className="absolute -bottom-4 -right-4 sm:-bottom-6 sm:-right-6 bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-4 border border-gray-100 dark:border-gray-800 max-w-[280px]">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                    <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  <div className="relative flex-shrink-0">
+                    <div className="h-16 w-16 rounded-full overflow-hidden border-2 border-green-200 dark:border-green-800">
+                      <img
+                        src="https://dims.healthgrades.com/dims3/MMH/0b1ebc4/2147483647/strip/true/crop/4749x7116+0+0/resize/4749x7116!/quality/75/?url=https%3A%2F%2Fucmscdn.healthgrades.com%2Fec%2F66%2F588039cf4a0690eab411337cd316%2Fy4q6x-urooj-shibli.jpg"
+                        alt="Dr. Urooj Shibli"
+                        className="w-full h-full object-cover"
+                        onError={(e) => { (e.target as HTMLImageElement).src = DOCTOR.image; }}
+                      />
+                    </div>
+                    <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center border-2 border-white dark:border-gray-900">
+                      <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
+                    </div>
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-foreground">Accepting New Patients</p>
@@ -406,6 +442,10 @@ function HeroSection({ onBook, onViewServices }) {
     </section>
   );
 }
+
+// ============================================================
+// SERVICES SECTION
+// ============================================================
 
 function ServicesSection({ onBook }) {
   return (
@@ -445,11 +485,16 @@ function ServicesSection({ onBook }) {
   );
 }
 
+// ============================================================
+// ABOUT SECTION (ENHANCED WITH COMPREHENSIVE INFO)
+// ============================================================
+
 function AboutSection() {
   return (
     <section id="about" className="py-24 sm:py-32">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        {/* Main About */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-20">
           <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
             <div className="relative">
               <div className="rounded-2xl overflow-hidden shadow-lg">
@@ -468,14 +513,20 @@ function AboutSection() {
             </div>
           </motion.div>
           <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-            <span className="text-sm font-medium text-primary tracking-wide uppercase">About Dr.</span>
+            <span className="text-sm font-medium text-primary tracking-wide uppercase">About {DOCTOR.name}</span>
             <h2 className="mt-3 text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Your Partner in Health & Wellness</h2>
             <p className="mt-5 text-muted-foreground leading-relaxed text-base">{DOCTOR.bio}</p>
+            <p className="mt-4 text-muted-foreground leading-relaxed text-base">
+              Dr Shibli has established a solid reputation and is well known for her pleasant disposition, ability to build a warm rapport with her patients, being a good listener and for providing clear, easy to follow diagnosis and treatment plans.
+            </p>
+            <p className="mt-4 text-muted-foreground leading-relaxed text-base">
+              She has recently established her own private practice and is accepting both old and new patients. At Shibli Family Medicine and Obesity Clinic, we are committed to providing you with the most exceptional care in a compassionate and friendly atmosphere.
+            </p>
             <div className="mt-8 space-y-4">
               {[
                 { icon: GraduationCap, label: 'Education', value: DOCTOR.education },
                 { icon: Activity, label: 'Residency', value: DOCTOR.residency },
-                { icon: BadgeCheck, label: 'Certification', value: DOCTOR.boardCert },
+                { icon: BadgeCheck, label: 'Board Certifications', value: DOCTOR.boardCert },
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3">
                   <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -490,10 +541,120 @@ function AboutSection() {
             </div>
           </motion.div>
         </div>
+
+        {/* Education Timeline */}
+        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-20">
+          <h3 className="text-2xl font-bold text-foreground mb-2 text-center">Education & Training Timeline</h3>
+          <p className="text-muted-foreground text-center mb-10">Dr. Shibli's medical education and professional journey</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-2xl border-2 border-blue-100 dark:border-blue-900/50 p-6">
+              <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center mb-4">
+                <GraduationCap className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <p className="text-sm font-bold text-blue-600 dark:text-blue-400 mb-2">2004 — MEDICAL SCHOOL</p>
+              <p className="text-lg font-bold text-foreground mb-1">Ziauddin Medical University</p>
+              <p className="text-sm text-muted-foreground">Graduated with Gold Medal — Karachi, Pakistan</p>
+            </div>
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 rounded-2xl border-2 border-purple-100 dark:border-purple-900/50 p-6">
+              <div className="h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center mb-4">
+                <Activity className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              </div>
+              <p className="text-sm font-bold text-purple-600 dark:text-purple-400 mb-2">2007 — INTERNSHIP</p>
+              <p className="text-lg font-bold text-foreground mb-1">General Internship</p>
+              <p className="text-sm text-muted-foreground">Forbes Regional Hospital, PA</p>
+            </div>
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-2xl border-2 border-green-100 dark:border-green-900/50 p-6">
+              <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center mb-4">
+                <BadgeCheck className="h-6 w-6 text-green-600 dark:text-green-400" />
+              </div>
+              <p className="text-sm font-bold text-green-600 dark:text-green-400 mb-2">2009 — RESIDENCY</p>
+              <p className="text-lg font-bold text-foreground mb-1">Family Medicine Residency</p>
+              <p className="text-sm text-muted-foreground">Forbes / Allegheny Health Network</p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Professional Experience */}
+        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-20 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 rounded-3xl border-2 border-amber-100 dark:border-amber-900/50 p-8">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="h-14 w-14 rounded-2xl bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">
+              <Heart className="h-7 w-7 text-amber-600 dark:text-amber-400" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold text-foreground">Professional Experience</h3>
+              <p className="text-sm text-amber-600 dark:text-amber-400 font-medium">Clinical leadership & practice ownership</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <p className="text-3xl font-extrabold text-primary mb-2">15–20+ years</p>
+              <p className="text-sm text-muted-foreground">Primary care, preventive medicine & weight management expertise</p>
+            </div>
+            <div>
+              <p className="text-lg font-bold text-foreground mb-2">Founder & Lead Physician</p>
+              <p className="text-sm text-muted-foreground">Shibli Family Medicine & Obesity Clinic — Mesquite, TX</p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Awards & Languages */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-20">
+          <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+            <h3 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
+              <Award className="h-5 w-5 text-primary" />
+              Awards & Recognitions
+            </h3>
+            <div className="space-y-3">
+              {DOCTOR.awards.map((award, i) => (
+                <div key={i} className="flex items-start gap-3 bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-100 dark:border-gray-800">
+                  <div className="h-8 w-8 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center flex-shrink-0">
+                    <Star className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                  </div>
+                  <p className="text-sm font-medium text-foreground">{award}</p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+          <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+            <h3 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
+              <Languages className="h-5 w-5 text-primary" />
+              Languages Spoken
+            </h3>
+            <p className="text-sm text-muted-foreground mb-4">Care available in multiple languages</p>
+            <div className="flex flex-wrap gap-2">
+              {DOCTOR.languages.map((lang, i) => (
+                <Badge key={i} variant="secondary" className="rounded-full text-sm font-medium px-4 py-2 bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400">
+                  <Globe className="h-3.5 w-3.5 mr-1.5" />
+                  {lang}
+                </Badge>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Specialties */}
+        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+          <h3 className="text-2xl font-bold text-foreground mb-2 text-center">Specialties & Services</h3>
+          <p className="text-muted-foreground text-center mb-10">Comprehensive clinic services for all ages</p>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {DOCTOR.specialties.map((specialty, i) => (
+              <div key={i} className="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-100 dark:border-gray-800 text-center hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                  <Stethoscope className="h-5 w-5 text-primary" />
+                </div>
+                <p className="text-xs font-semibold text-foreground">{specialty}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
       </div>
     </section>
   );
 }
+
+// ============================================================
+// TRUST SECTION
+// ============================================================
 
 function TrustSection() {
   const stats = [
@@ -523,7 +684,7 @@ function TrustSection() {
 // ============================================================
 
 function BookingModal({ onClose, onSuccess }) {
-  const [selectedDate, setSelectedDate] = useState(undefined);
+  const [selectedDate, setSelectedDate] = useState(null);
   const [bookedSlots, setBookedSlots] = useState([]);
   const [formData, setFormData] = useState({
     name: '', email: '', phone: '', date: '', time: '',
@@ -630,7 +791,7 @@ function BookingModal({ onClose, onSuccess }) {
                 <CalendarDays className="mr-2 h-4 w-4" />
                 View Dashboard
               </Button>
-              <Button onClick={() => { setIsSuccess(false); setSubmittedApt(null); setSelectedDate(undefined); setFormData({ name: '', email: '', phone: '', date: '', time: '', appointmentType: '', insurance: '', reason: '', consent: false }); }} variant="outline" className="rounded-full px-6">
+              <Button onClick={() => { setIsSuccess(false); setSubmittedApt(null); setSelectedDate(null); setFormData({ name: '', email: '', phone: '', date: '', time: '', appointmentType: '', insurance: '', reason: '', consent: false }); }} variant="outline" className="rounded-full px-6">
                 Book Another
               </Button>
             </div>
@@ -644,7 +805,15 @@ function BookingModal({ onClose, onSuccess }) {
                   Select Date
                 </h3>
                 <div className="flex justify-center bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-3">
-                  <Calendar mode="single" selected={selectedDate} onSelect={handleDateSelect} disabled={disabledDays} fromDate={new Date()} toDate={addMonths(new Date(), 3)} />
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={handleDateSelect}
+                    disabled={disabledDays}
+                    fromDate={new Date()}
+                    toDate={addMonths(new Date(), 3)}
+                    className="rounded-xl"
+                  />
                 </div>
                 {errors.date && (
                   <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-red-500 mt-2 flex items-center gap-1">
@@ -752,7 +921,7 @@ function BookingModal({ onClose, onSuccess }) {
 }
 
 // ============================================================
-// ADMIN DASHBOARD (ENHANCED WITH WORKING ACCEPT/DECLINE)
+// ADMIN DASHBOARD
 // ============================================================
 
 function AdminDashboard({ appointments, onUpdateStatus, onSendMessage, showToast }) {
@@ -814,7 +983,7 @@ function AdminDashboard({ appointments, onUpdateStatus, onSendMessage, showToast
         new Date(apt.createdAt).toLocaleString()
       ].join(','))
     ].join('\n');
-    
+
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -854,9 +1023,9 @@ function AdminDashboard({ appointments, onUpdateStatus, onSendMessage, showToast
 
   const filteredAppointments = appointments.filter(apt => {
     const matchesSearch = apt.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         apt.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         apt.phone.includes(searchTerm) ||
-                         apt.id.toLowerCase().includes(searchTerm.toLowerCase());
+      apt.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      apt.phone.includes(searchTerm) ||
+      apt.id.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filterStatus === 'all' || apt.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
