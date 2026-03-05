@@ -9,12 +9,13 @@ import {
 } from 'date-fns';
 import { useTheme } from 'next-themes';
 import {
-  Stethoscope, FileText, Video, Shield, MapPin, Phone,
+  Stethoscope, FileText, Video, Shield, MapPin, Phone, Mail,
   Clock, Award, Star, ChevronRight, ChevronLeft, X, Check, AlertCircle,
   Sun, Moon, Menu, User, Trash2, Heart, Activity,
   Calendar as CalendarIcon, GraduationCap, BadgeCheck, CalendarDays, ArrowRight,
   Settings, Lock, CheckCircle, XCircle, MessageSquare, Send,
   Search, Download, Filter, Bell, Globe, Languages, Sparkles,
+  ExternalLink, TrendingUp,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -495,6 +496,7 @@ function Header({ scrolled, currentView, setCurrentView, onBook, scrollToSection
 
 function HeroSection({ onBook, onViewServices }) {
   const [imgError, setImgError] = useState(false);
+  const [aboutImgError, setAboutImgError] = useState(false);
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 500], [0, 60]);
   const opacity = useTransform(scrollY, [0, 400], [1, 0]);
@@ -783,9 +785,10 @@ function AboutSection() {
               <div className="absolute -inset-4 bg-gradient-to-br from-primary/8 to-violet-500/8 rounded-3xl" />
               <div className="relative rounded-2xl overflow-hidden shadow-xl">
                 <img
-                  src="https://claude.ai/api/349dfe45-013b-4ffd-966d-8022663152c9/files/886f5db9-d9d2-4368-9756-4c22d1ef61f3/preview"
+                  src={DOCTOR.image}
                   alt="Dr. Urooj Shibli"
                   className="w-full h-auto object-cover object-top aspect-[4/5]"
+                  onError={() => setAboutImgError(true)}
                 />
               </div>
               {/* Floating card */}
@@ -1936,6 +1939,206 @@ function DashboardView({ appointments, onCancel, onBook }) {
 }
 
 // ============================================================
+// CONTACT SECTION
+// ============================================================
+
+function ContactSection({ onBook }) {
+  return (
+    <section id="contact" className="py-24 sm:py-32 bg-white dark:bg-gray-950">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Reveal className="text-center mb-14">
+          <span className="text-sm font-semibold text-primary tracking-widest uppercase">Get In Touch</span>
+          <h2 className="mt-3 text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
+            Visit or Contact Us
+          </h2>
+          <p className="mt-4 text-muted-foreground max-w-md mx-auto text-sm">
+            We&apos;re conveniently located in Mesquite and happy to answer any questions.
+          </p>
+        </Reveal>
+
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          {/* Contact Info */}
+          <div className="lg:col-span-2 space-y-4">
+            {[
+              {
+                Icon: Phone, label: 'Phone', value: DOCTOR.phone,
+                href: `tel:${DOCTOR.phone.replace(/[^\d+]/g, '')}`,
+                sub: 'Mon – Fri, 9AM – 5PM',
+                color: 'bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400',
+              },
+              {
+                Icon: Mail, label: 'Email', value: DOCTOR.email,
+                href: `mailto:${DOCTOR.email}`,
+                sub: 'We reply within 24 hours',
+                color: 'bg-violet-50 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400',
+              },
+              {
+                Icon: MapPin, label: 'Address', value: DOCTOR.address,
+                href: `https://maps.google.com/?q=${encodeURIComponent(DOCTOR.address)}`,
+                sub: 'Get directions →',
+                color: 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400',
+              },
+              {
+                Icon: Clock, label: 'Hours', value: 'Mon – Fri: 9:00 AM – 5:00 PM',
+                href: null,
+                sub: 'Closed weekends & holidays',
+                color: 'bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400',
+              },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08, ...gentleSpring }}
+                whileHover={{ x: 4 }}
+              >
+                {item.href ? (
+                  <a
+                    href={item.href}
+                    target={item.href.startsWith('http') ? '_blank' : undefined}
+                    rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                    className="flex items-start gap-4 bg-white dark:bg-gray-900 rounded-2xl p-4 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200 group"
+                  >
+                    <div className={`h-10 w-10 rounded-xl flex items-center justify-center flex-shrink-0 ${item.color}`}>
+                      <item.Icon className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">{item.label}</p>
+                      <p className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">{item.value}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{item.sub}</p>
+                    </div>
+                    <ExternalLink className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-primary transition-colors flex-shrink-0 mt-1" />
+                  </a>
+                ) : (
+                  <div className="flex items-start gap-4 bg-white dark:bg-gray-900 rounded-2xl p-4 border border-gray-100 dark:border-gray-800 shadow-sm">
+                    <div className={`h-10 w-10 rounded-xl flex items-center justify-center flex-shrink-0 ${item.color}`}>
+                      <item.Icon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-0.5">{item.label}</p>
+                      <p className="text-sm font-medium text-foreground">{item.value}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{item.sub}</p>
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Map + CTA */}
+          <div className="lg:col-span-3 flex flex-col gap-5">
+            {/* Embedded map */}
+            <Reveal className="flex-1">
+              <div className="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm h-64 lg:h-full min-h-[260px]">
+                <iframe
+                  title="Clinic Location"
+                  src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyD-placeholder&q=${encodeURIComponent(DOCTOR.address)}`}
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0, minHeight: '260px' }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                  }}
+                />
+                {/* Fallback if map doesn't load */}
+                <div className="w-full h-full min-h-[260px] bg-gradient-to-br from-slate-100 to-blue-50 dark:from-slate-800 dark:to-blue-900/20 flex flex-col items-center justify-center gap-4 -mt-[260px]">
+                  <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                    <MapPin className="h-8 w-8 text-primary" />
+                  </div>
+                  <div className="text-center px-4">
+                    <p className="text-sm font-semibold text-foreground">{DOCTOR.address}</p>
+                    <a
+                      href={`https://maps.google.com/?q=${encodeURIComponent(DOCTOR.address)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-primary hover:underline mt-1 inline-block"
+                    >
+                      Open in Google Maps →
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+
+            {/* Book CTA card */}
+            <Reveal>
+              <div className="bg-gradient-to-br from-primary to-blue-700 rounded-2xl p-6 text-white relative overflow-hidden">
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(255,255,255,0.12),transparent_60%)]" />
+                <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-semibold text-blue-100 mb-1">Ready to get started?</p>
+                    <p className="text-xl font-bold">Book Your Appointment</p>
+                    <p className="text-sm text-blue-200 mt-1">Online booking — takes under 2 minutes</p>
+                  </div>
+                  <motion.div whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.97 }} transition={spring} className="flex-shrink-0">
+                    <Button
+                      onClick={onBook}
+                      className="bg-white text-primary hover:bg-blue-50 rounded-full px-6 h-11 text-sm font-bold shadow-lg shadow-black/20"
+                    >
+                      Book Now <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </motion.div>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ============================================================
+// SCROLL PROGRESS BAR
+// ============================================================
+
+function ScrollProgressBar() {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 200, damping: 30 });
+  return (
+    <motion.div
+      style={{ scaleX }}
+      className="fixed top-0 left-0 right-0 h-[2px] bg-primary origin-left z-[60] shadow-sm shadow-primary/30"
+    />
+  );
+}
+
+// ============================================================
+// STICKY BOOK CTA
+// ============================================================
+
+function StickyBookCTA({ onBook, visible }) {
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          initial={{ opacity: 0, y: 80 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 80 }}
+          transition={gentleSpring}
+          className="fixed bottom-6 right-6 z-50 lg:hidden"
+        >
+          <motion.button
+            onClick={onBook}
+            className="flex items-center gap-2 bg-primary text-primary-foreground rounded-full px-5 h-12 text-sm font-bold shadow-2xl shadow-primary/40"
+            whileHover={{ scale: 1.06, y: -2 }}
+            whileTap={{ scale: 0.94 }}
+            transition={spring}
+          >
+            <CalendarDays className="h-4 w-4" />
+            Book Now
+          </motion.button>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+// ============================================================
 // FOOTER
 // ============================================================
 
@@ -1958,6 +2161,9 @@ function FooterSection({ scrollToSection }) {
               <a href={`tel:${DOCTOR.phone.replace(/[^\d+]/g, '')}`} className="flex items-center gap-2 text-sm hover:text-white transition-colors">
                 <Phone className="h-4 w-4" /> {DOCTOR.phone}
               </a>
+              <a href={`mailto:${DOCTOR.email}`} className="flex items-center gap-2 text-sm hover:text-white transition-colors">
+                <Mail className="h-4 w-4" /> {DOCTOR.email}
+              </a>
               <div className="flex items-start gap-2 text-sm">
                 <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5" /> {DOCTOR.address}
               </div>
@@ -1967,7 +2173,7 @@ function FooterSection({ scrollToSection }) {
           <div>
             <h4 className="text-xs font-bold text-white uppercase tracking-widest mb-5">Quick Links</h4>
             <div className="space-y-3">
-              {[{ label: 'Home', id: 'hero' }, { label: 'Services', id: 'services' }, { label: 'About', id: 'about' }].map((item) => (
+              {[{ label: 'Home', id: 'hero' }, { label: 'Services', id: 'services' }, { label: 'About', id: 'about' }, { label: 'Contact', id: 'contact' }].map((item) => (
                 <motion.button
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
@@ -2005,6 +2211,7 @@ function FooterSection({ scrollToSection }) {
   );
 }
 
+
 // ============================================================
 // MAIN APP
 // ============================================================
@@ -2014,12 +2221,17 @@ export default function App() {
   const [bookingOpen, setBookingOpen] = useState(false);
   const [appointments, setAppointments] = useState([]);
   const [scrolled, setScrolled] = useState(false);
+  const [showStickyBtn, setShowStickyBtn] = useState(false);
   const [toast, setToast] = useState(null);
 
   useEffect(() => { setAppointments(getAppointments()); }, []);
 
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 20);
+    const handler = () => {
+      const y = window.scrollY;
+      setScrolled(y > 20);
+      setShowStickyBtn(y > 400);
+    };
     window.addEventListener('scroll', handler, { passive: true });
     return () => window.removeEventListener('scroll', handler);
   }, []);
@@ -2071,6 +2283,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Scroll progress bar — only on home */}
+      {currentView === 'home' && <ScrollProgressBar />}
+
       <Header
         scrolled={scrolled}
         currentView={currentView}
@@ -2087,6 +2302,7 @@ export default function App() {
             <ServicesSection onBook={() => setBookingOpen(true)} />
             <AboutSection />
             <TrustSection />
+            <ContactSection onBook={() => setBookingOpen(true)} />
           </motion.main>
         )}
         {currentView === 'dashboard' && (
@@ -2102,6 +2318,9 @@ export default function App() {
       </AnimatePresence>
 
       <FooterSection scrollToSection={scrollToSection} />
+
+      {/* Sticky mobile Book button */}
+      <StickyBookCTA onBook={() => setBookingOpen(true)} visible={showStickyBtn && currentView === 'home' && !bookingOpen} />
 
       <AnimatePresence>
         {bookingOpen && <BookingModal onClose={() => setBookingOpen(false)} onSuccess={handleBookingSuccess} />}
