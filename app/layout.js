@@ -9,7 +9,7 @@ const inter = Inter({
 })
 
 export const metadata = {
-  title: 'Dr. , MD |  Family Medicine & Obesity Clinic',
+  title: 'Dr Urooj , MD |  Family Medicine & Obesity Clinic',
   description: 'Board-certified family physician providing compassionate, patient-centered healthcare for over 15 years in Mesquite, TX. Book your appointment today.',
   keywords: 'family medicine, doctor, Mesquite TX, Dallas, family physician, obesity clinic, Dr.',
 }

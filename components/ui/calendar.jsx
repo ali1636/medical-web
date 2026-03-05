@@ -31,21 +31,34 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }) {
         row: "flex w-full mt-2",
         cell: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 h-10 w-10",
         day: cn(
-          "h-10 w-10 p-0 font-semibold rounded-lg transition-all duration-200",
-          "hover:bg-primary/10 hover:text-primary",
-          "focus:outline-none focus:ring-2 focus:ring-primary/50"
+          "h-10 w-10 p-0 font-bold rounded-lg transition-all duration-200",
+          "hover:bg-primary/10 hover:text-primary hover:scale-105",
+          "focus:outline-none focus:ring-2 focus:ring-primary/50",
+          // Default state - clearly NOT selected
+          "bg-white dark:bg-gray-900 text-foreground",
+          "border-2 border-transparent"
         ),
         day_selected: cn(
-          "bg-primary text-primary-foreground font-bold",
+          // SELECTED STATE - Very obvious like time slots
+          "bg-primary text-primary-foreground font-extrabold",
           "hover:bg-primary hover:text-primary-foreground",
-          "shadow-md ring-2 ring-primary/20 ring-offset-1"
+          "shadow-lg shadow-primary/40",
+          "border-2 border-primary",
+          "scale-105",
+          "ring-2 ring-primary/30 ring-offset-2 ring-offset-background",
+          // Override default states when selected
+          "!bg-primary !text-primary-foreground !border-primary"
         ),
         day_today: cn(
           "bg-accent text-accent-foreground font-bold",
-          "ring-2 ring-primary/30"
+          "ring-2 ring-primary/30",
+          "border-2 border-primary/40"
         ),
         day_outside: "text-muted-foreground/40 opacity-50",
-        day_disabled: "text-muted-foreground/30 opacity-30 line-through cursor-not-allowed",
+        day_disabled: cn(
+          "text-muted-foreground/30 opacity-30 line-through cursor-not-allowed",
+          "hover:bg-transparent hover:scale-100"
+        ),
         day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
         day_hidden: "invisible",
         ...classNames,
