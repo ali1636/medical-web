@@ -496,7 +496,6 @@ function Header({ scrolled, currentView, setCurrentView, onBook, scrollToSection
 
 function HeroSection({ onBook, onViewServices }) {
   const [imgError, setImgError] = useState(false);
-  const [aboutImgError, setAboutImgError] = useState(false);
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 500], [0, 60]);
   const opacity = useTransform(scrollY, [0, 400], [1, 0]);
@@ -785,11 +784,19 @@ function AboutSection() {
               <div className="absolute -inset-4 bg-gradient-to-br from-primary/8 to-violet-500/8 rounded-3xl" />
               <div className="relative rounded-2xl overflow-hidden shadow-xl">
                 <img
-                  src={DOCTOR.image}
-                  alt="Dr. Urooj Shibli"
-                  className="w-full h-auto object-cover object-top aspect-[4/5]"
-                  onError={() => setAboutImgError(true)}
+                  src="/team-photo.png"
+                  alt="Dr. Urooj Shibli and the Shibli Family Medicine team"
+                  className="w-full h-auto object-cover object-center aspect-[4/3]"
+                  onError={(e) => {
+                    e.currentTarget.src = DOCTOR.image;
+                    e.currentTarget.className = 'w-full h-auto object-cover object-top aspect-[4/5]';
+                  }}
                 />
+                {/* Team overlay label */}
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-5 py-4">
+                  <p className="text-white text-sm font-semibold">Our Care Team</p>
+                  <p className="text-white/70 text-xs">Dedicated to your health & wellbeing</p>
+                </div>
               </div>
               {/* Floating card */}
               <motion.div
