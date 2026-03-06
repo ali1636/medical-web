@@ -116,14 +116,87 @@ const APPOINTMENT_TYPES = [
 ];
 
 const ADMIN_PASSWORD = 'admin123';
-const EMAILJS_SERVICE_ID = 'YOUR_SERVICE_ID';
-const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
-const EMAILJS_PUBLIC_KEY = 'YOUR_PUBLIC_KEY';
+// EmailJS — booking confirmation (sent to patient on form submit)
+const EMAILJS_SERVICE_ID      = 'YOUR_SERVICE_ID';
+const EMAILJS_TEMPLATE_ID     = 'YOUR_TEMPLATE_ID';       // template: patient receives booking request copy
+// EmailJS — admin reply (sent to patient when admin accepts/declines)
+const EMAILJS_REPLY_TEMPLATE_ID = 'YOUR_REPLY_TEMPLATE_ID'; // template: patient receives accept/decline message
+const EMAILJS_PUBLIC_KEY      = 'YOUR_PUBLIC_KEY';
 const STORAGE_KEY = 'shibli_appointments';
 
-// ============================================================
-// VALIDATION
-// ============================================================
+// ── Email helper ────────────────────────────────────────────
+const IS_EMAILJS_CONFIGURED = EMAILJS_SERVICE_ID !== 'YOUR_SERVICE_ID';
+
+async function getEmailJS() {
+  const emailjs = (await import('@emailjs/browser')).default;
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+  return emailjs;
+}
+
+// Sent when patient first submits the booking form
+async function sendBookingEmail(appointment) {
+  if (!IS_EMAILJS_CONFIGURED) {
+    console.info('%c📧 EmailJS [booking]: placeholder mode — configure constants to send real emails', 'color:#2563eb;font-weight:bold');
+    return { success: true, placeholder: true };
+  }
+  try {
+    const emailjs = await getEmailJS();
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      to_email:         appointment.email,
+      to_name:          appointment.name,
+      patient_name:     appointment.name,
+      patient_email:    appointment.email,
+      patient_phone:    appointment.phone,
+      appointment_date: appointment.date,
+      appointment_time: appointment.time,
+      appointment_type: appointment.appointmentType,
+      insurance:        appointment.insurance || 'Not provided',
+      reason:           appointment.reason   || 'Not specified',
+      appointment_id:   appointment.id,
+      clinic_name:      DOCTOR.practice,
+      clinic_phone:     DOCTOR.phone,
+      clinic_address:   DOCTOR.address,
+    });
+    return { success: true };
+  } catch (err) {
+    console.error('EmailJS booking error:', err);
+    return { success: false, error: err };
+  }
+}
+
+// Sent when admin accepts OR declines — goes to patient's email
+async function sendAdminReplyEmail({ appointment, action, message }) {
+  if (!IS_EMAILJS_CONFIGURED) {
+    console.info(
+      `%c📧 EmailJS [admin-reply]: placeholder mode\n  → Would send "${action}" email to: ${appointment.email}\n  → Message: ${message}`,
+      'color:#7c3aed;font-weight:bold'
+    );
+    return { success: true, placeholder: true };
+  }
+  try {
+    const emailjs = await getEmailJS();
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_REPLY_TEMPLATE_ID, {
+      to_email:          appointment.email,
+      to_name:           appointment.name,
+      patient_name:      appointment.name,
+      patient_email:     appointment.email,
+      appointment_id:    appointment.id,
+      appointment_date:  appointment.date,
+      appointment_time:  appointment.time,
+      appointment_type:  appointment.appointmentType,
+      appointment_status: action === 'accept' ? 'Accepted ✅' : 'Declined ❌',
+      admin_message:     message,
+      clinic_name:       DOCTOR.practice,
+      clinic_phone:      DOCTOR.phone,
+      clinic_address:    DOCTOR.address,
+      clinic_email:      DOCTOR.email,
+    });
+    return { success: true };
+  } catch (err) {
+    console.error('EmailJS admin-reply error:', err);
+    return { success: false, error: err };
+  }
+}
 
 const appointmentSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -169,34 +242,7 @@ function getBookedSlots(dateStr) {
     .map((apt) => apt.time);
 }
 
-async function sendEmail(data) {
-  if (EMAILJS_SERVICE_ID === 'YOUR_SERVICE_ID') {
-    console.info('%c EmailJS: Placeholder mode', 'color:#2563eb;font-weight:bold');
-    return { success: true };
-  }
-  try {
-    const emailjs = (await import('@emailjs/browser')).default;
-    await emailjs.send(
-      EMAILJS_SERVICE_ID,
-      EMAILJS_TEMPLATE_ID,
-      {
-        patient_name: data.name,
-        patient_email: data.email,
-        patient_phone: data.phone,
-        appointment_date: data.date,
-        appointment_time: data.time,
-        appointment_type: data.appointmentType,
-        insurance: data.insurance || 'Not provided',
-        reason: data.reason || 'Not specified',
-        appointment_id: data.id,
-      },
-      EMAILJS_PUBLIC_KEY
-    );
-    return { success: true };
-  } catch (error) {
-    return { success: false, error };
-  }
-}
+
 
 // ============================================================
 // ANIMATION VARIANTS
@@ -1336,7 +1382,7 @@ function BookingModal({ onClose, onSuccess }) {
     const existing = getAppointments();
     existing.push(appointment);
     saveAppointments(existing);
-    await sendEmail(appointment);
+    await sendBookingEmail(appointment);
     setIsSubmitting(false);
     setSubmittedApt(appointment);
     setIsSuccess(true);
@@ -1632,12 +1678,50 @@ function AdminDashboard({ appointments, onUpdateStatus, onSendMessage, showToast
     );
   };
 
-  const handleConfirmAction = () => {
+  const [isSending, setIsSending] = useState(false);
+
+  const handleConfirmAction = async () => {
     if (!actionModal) return;
+    setIsSending(true);
+
     const newStatus = actionModal.action === 'accept' ? 'Accepted' : 'Declined';
+
+    // 1. Update status in localStorage immediately
     onUpdateStatus(actionModal.apt.id, newStatus);
-    if (actionMessage.trim()) onSendMessage(actionModal.apt.id, actionMessage);
-    showToast(`Appointment ${newStatus.toLowerCase()} successfully`, actionModal.action === 'accept' ? 'success' : 'info');
+
+    // 2. Save the admin message so patient sees it in their dashboard
+    if (actionMessage.trim()) {
+      onSendMessage(actionModal.apt.id, actionMessage);
+    }
+
+    // 3. Send the reply email to the patient's email address
+    const emailResult = await sendAdminReplyEmail({
+      appointment: actionModal.apt,
+      action:      actionModal.action,
+      message:     actionMessage.trim(),
+    });
+
+    setIsSending(false);
+
+    if (emailResult.placeholder) {
+      // EmailJS not yet configured — still works, just no real email sent
+      showToast(
+        `Appointment ${newStatus.toLowerCase()} — configure EmailJS to send real emails`,
+        actionModal.action === 'accept' ? 'success' : 'info'
+      );
+    } else if (emailResult.success) {
+      showToast(
+        `Appointment ${newStatus.toLowerCase()} & confirmation sent to ${actionModal.apt.email}`,
+        actionModal.action === 'accept' ? 'success' : 'info'
+      );
+    } else {
+      // Status was saved but email failed — tell admin
+      showToast(
+        `Appointment ${newStatus.toLowerCase()}, but email failed. Check EmailJS config.`,
+        'error'
+      );
+    }
+
     setActionModal(null);
     setActionMessage('');
   };
@@ -1923,15 +2007,30 @@ function AdminDashboard({ appointments, onUpdateStatus, onSendMessage, showToast
                   <p className="text-xs text-muted-foreground mt-1">{actionMessage.length} characters</p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3 mt-2">
-                  <motion.div className="flex-1" whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }} transition={spring}>
+                  <motion.div className="flex-1" whileHover={isSending ? {} : { scale: 1.01 }} whileTap={isSending ? {} : { scale: 0.98 }} transition={spring}>
                     <Button
                       onClick={handleConfirmAction}
-                      className={`w-full rounded-2xl h-11 font-bold ${actionModal.action === 'accept' ? 'bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-500/20' : 'bg-rose-600 hover:bg-rose-700 shadow-lg shadow-rose-500/20'}`}
+                      disabled={isSending}
+                      className={`w-full rounded-2xl h-11 font-bold disabled:opacity-70 disabled:cursor-not-allowed ${actionModal.action === 'accept' ? 'bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-500/20' : 'bg-rose-600 hover:bg-rose-700 shadow-lg shadow-rose-500/20'}`}
                     >
-                      <Send className="mr-2 h-4 w-4" /> Confirm & Send
+                      {isSending ? (
+                        <>
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
+                            className="mr-2 h-4 w-4 rounded-full border-2 border-white/30 border-t-white"
+                          />
+                          Sending Email…
+                        </>
+                      ) : (
+                        <>
+                          <Send className="mr-2 h-4 w-4" />
+                          Confirm & Send Email
+                        </>
+                      )}
                     </Button>
                   </motion.div>
-                  <Button onClick={() => setActionModal(null)} variant="outline" className="flex-1 rounded-2xl h-11 font-semibold border-2">
+                  <Button onClick={() => setActionModal(null)} disabled={isSending} variant="outline" className="flex-1 rounded-2xl h-11 font-semibold border-2 disabled:opacity-50 disabled:cursor-not-allowed">
                     Cancel
                   </Button>
                 </div>
