@@ -97,6 +97,11 @@ export default function RootLayout({ children }) {
         {/* Preconnect to external image CDNs used in the app */}
         <link rel="preconnect" href="https://dims.healthgrades.com" />
         <link rel="preconnect" href="https://ucmscdn.healthgrades.com" />
+        <link rel="preconnect" href="https://www.openstreetmap.org" />
+
+        {/* Preload above-the-fold local images */}
+        <link rel="preload" as="image" href="/team-photo.png" />
+        <link rel="preload" as="image" href="/doctor-patient.jpeg" />
 
         {/* Structured data — Local Business */}
         <script
