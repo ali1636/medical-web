@@ -39,7 +39,9 @@ export function AdminDashboard({ appointments, onRefresh, showToast }) {
 
   // Check for an existing session on mount
   useEffect(() => {
-    getSupabaseClient()?.auth.getSession().then(({ data: { session } }) => {
+    const client = getSupabaseClient();
+    if (!client) return;
+    client.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setIsAuthenticated(true);
         onRefresh();
@@ -55,7 +57,9 @@ export function AdminDashboard({ appointments, onRefresh, showToast }) {
     }
     setIsLoggingIn(true);
     setAuthError('');
-    const { error } = await getSupabaseClient()?.auth.signInWithPassword({
+    const client = getSupabaseClient();
+    if (!client) { setAuthError('Auth service unavailable'); setIsLoggingIn(false); return; }
+    const { error } = await client.auth.signInWithPassword({
       email:    adminEmail.trim(),
       password: password,
     });
@@ -70,7 +74,8 @@ export function AdminDashboard({ appointments, onRefresh, showToast }) {
   };
 
   const handleLogout = async () => {
-    await getSupabaseClient()?.auth.signOut();
+    const client = getSupabaseClient();
+    if (client) await client.auth.signOut();
     setIsAuthenticated(false);
     setAdminEmail('');
     setPassword('');
