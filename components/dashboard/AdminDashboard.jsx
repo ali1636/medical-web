@@ -11,7 +11,7 @@ import { Button }   from '@/components/ui/button';
 import { Input }    from '@/components/ui/input';
 import { Label }    from '@/components/ui/label';
 import { Badge }    from '@/components/ui/badge';
-import { supabase, apiUpdateAppointment } from '@/lib/api';
+import { getSupabaseClient, apiUpdateAppointment } from '@/lib/api';
 import { DOCTOR }   from '@/lib/constants';
 import { spring, gentleSpring } from '@/lib/animations';
 
@@ -39,7 +39,7 @@ export function AdminDashboard({ appointments, onRefresh, showToast }) {
 
   // Check for an existing session on mount
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    getSupabaseClient()?.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setIsAuthenticated(true);
         onRefresh();
@@ -55,7 +55,7 @@ export function AdminDashboard({ appointments, onRefresh, showToast }) {
     }
     setIsLoggingIn(true);
     setAuthError('');
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error } = await getSupabaseClient()?.auth.signInWithPassword({
       email:    adminEmail.trim(),
       password: password,
     });
@@ -70,7 +70,7 @@ export function AdminDashboard({ appointments, onRefresh, showToast }) {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await getSupabaseClient()?.auth.signOut();
     setIsAuthenticated(false);
     setAdminEmail('');
     setPassword('');
