@@ -1,9 +1,8 @@
 // app/page.jsx
-// ── Entry point — thin orchestration layer ──────────────────────
-// All business logic lives in hooks/. All UI in components/.
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Header }           from '@/components/layout/Header';
 import { Footer }           from '@/components/layout/Footer';
@@ -16,10 +15,15 @@ import { ContactSection }   from '@/components/sections/ContactSection';
 import { BookingModal }     from '@/components/booking/BookingModal';
 import { StickyBookCTA }    from '@/components/booking/StickyBookCTA';
 import { PatientDashboard } from '@/components/dashboard/PatientDashboard';
-import { AdminDashboard }   from '@/components/dashboard/AdminDashboard';
 import { Toast }            from '@/components/ui/Toast';
 import { useToast }         from '@/hooks/useToast';
 import { useAppointments }  from '@/hooks/useAppointments';
+
+// AdminDashboard uses Supabase Auth — must never run on the server
+const AdminDashboard = dynamic(
+  () => import('@/components/dashboard/AdminDashboard').then(m => ({ default: m.AdminDashboard })),
+  { ssr: false, loading: () => <div className="min-h-screen flex items-center justify-center"><p className="text-muted-foreground">Loading admin panel…</p></div> }
+);
 
 export default function App() {
   const [currentView,   setCurrentView]   = useState('home');
