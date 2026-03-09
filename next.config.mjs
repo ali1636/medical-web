@@ -1,7 +1,19 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
-    ignoreDuringBuilds: true, // <-- add this line
+    ignoreDuringBuilds: true,
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'dims.healthgrades.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'ucmscdn.healthgrades.com',
+      },
+    ],
   },
 };
 
