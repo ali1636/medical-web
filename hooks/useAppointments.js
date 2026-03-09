@@ -1,28 +1,25 @@
 // hooks/useAppointments.js
 'use client';
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getLocalAppointments, saveLocalAppointments } from '@/lib/utils';
 import { apiFetchAllAppointments, apiUpdateAppointment } from '@/lib/api';
 
-/**
- * useAppointments
- * Centralises all appointment state and actions.
- * Patient-side reads from localStorage (instant).
- * Admin-side reads from Supabase (via API route).
- *
- * Returns everything the App component and its children need.
- */
 export function useAppointments(showToast) {
-  const [appointments, setAppointments] = useState(() => getLocalAppointments());
+  // Start with [] on both server and client to avoid hydration mismatch.
+  // Load from localStorage only after mount (client-only).
+  const [appointments, setAppointments] = useState([]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    setAppointments(getLocalAppointments());
+  }, []);
 
   // ── Patient actions ─────────────────────────────────────────
-
-  /** Reload patient appointments from localStorage */
   const refreshLocalAppointments = useCallback(() => {
     setAppointments(getLocalAppointments());
   }, []);
 
-  /** Add a newly booked appointment to local state */
   const addLocalAppointment = useCallback((appointment) => {
     const existing = getLocalAppointments();
     const updated  = [...existing, appointment];
@@ -30,13 +27,10 @@ export function useAppointments(showToast) {
     setAppointments(updated);
   }, []);
 
-  /** Cancel a pending appointment (patient action) */
   const cancelAppointment = useCallback(async (id) => {
-    // Optimistic update — remove from UI immediately
     const updated = getLocalAppointments().filter((a) => a.id !== id);
     saveLocalAppointments(updated);
     setAppointments(updated);
-    // Sync to Supabase in background
     try {
       await apiUpdateAppointment(id, { status: 'Cancelled' }, true);
     } catch (err) {
@@ -46,19 +40,15 @@ export function useAppointments(showToast) {
   }, [showToast]);
 
   // ── Admin actions ───────────────────────────────────────────
-
-  /** Fetch ALL appointments from Supabase (admin only) */
   const refreshAdminAppointments = useCallback(async () => {
     try {
       const data = await apiFetchAllAppointments();
       setAppointments(data);
     } catch (err) {
       console.error('Admin refresh error:', err);
-      // Silently fail — user may not be admin
     }
   }, []);
 
-  /** Update a single appointment's status (admin) */
   const updateAppointmentStatus = useCallback(async (id, status) => {
     try {
       await apiUpdateAppointment(id, { status });
@@ -67,7 +57,6 @@ export function useAppointments(showToast) {
     }
   }, []);
 
-  /** Send a custom message to a patient (admin) */
   const sendMessageToPatient = useCallback(async (id, message) => {
     try {
       await apiUpdateAppointment(id, { adminMessage: message });
@@ -78,6 +67,7 @@ export function useAppointments(showToast) {
 
   return {
     appointments,
+    mounted,
     // Patient
     refreshLocalAppointments,
     addLocalAppointment,
